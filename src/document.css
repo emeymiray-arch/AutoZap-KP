@@ -73,6 +73,20 @@
   flex-shrink: 0;
 }
 
+.banner-error {
+  margin: 12px 16px 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #fff3f0;
+  color: #9b1c1c;
+  font-size: 13px;
+}
+
+.toolbar button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
 .toolbar button,
 .toolbar a.btn {
   appearance: none;

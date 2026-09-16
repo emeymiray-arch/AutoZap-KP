@@ -1,3 +1,5 @@
+import { logoUrl, qrAndroidUrl, qrIosUrl, qrRustoreUrl } from './files'
+
 const offers = [
   {
     n: '01',
@@ -34,19 +36,19 @@ const offers = [
 const apps = [
   {
     name: 'Android · Google Play',
-    file: '/qr-android.svg',
+    file: qrAndroidUrl,
     href: 'https://play.google.com/store/apps/details?id=com.unnamedii.autozapmobile',
     label: 'Открыть в Google Play',
   },
   {
     name: 'iPhone · App Store',
-    file: '/qr-ios.svg',
+    file: qrIosUrl,
     href: 'https://apps.apple.com/ru/app/autozap/id6772788391',
     label: 'Открыть в App Store',
   },
   {
     name: 'RuStore',
-    file: '/qr-rustore.svg',
+    file: qrRustoreUrl,
     href: 'https://www.rustore.ru/catalog/app/com.unnamedii.autozapmobile',
     label: 'Открыть в RuStore',
   },
@@ -56,7 +58,7 @@ function Header({ page }: { page: string }) {
   return (
     <div className="sheet-header">
       <div className="mini-logo">
-        <img src="/logo.jpg" alt="" />
+        <img src={logoUrl} alt="" />
         AutoZap
       </div>
       <div className="meta">КП-2026/09-ARMTEK · {page} / 04</div>
@@ -101,7 +103,7 @@ export function Proposal() {
           <div className="cover-main">
             <CoverStreaks />
             <div className="logo-mark">
-              <img src="/logo.jpg" alt="AutoZap" />
+              <img src={logoUrl} alt="AutoZap" />
             </div>
             <div className="kicker" style={{ color: '#1ac2ff' }}>
               О сотрудничестве
