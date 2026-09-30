@@ -32,6 +32,6 @@ npx vercel deploy dist --temporary --yes
 
 Если Vercel даёт 403, сайт открыт через Cloudflare Tunnel (без GitHub и без базы):
 
-https://september-courier-adventure-browsers.trycloudflare.com
+https://bought-boom-discussions-inside.trycloudflare.com
 
-Создание КП: https://september-courier-adventure-browsers.trycloudflare.com/#/new
+Создание КП: https://bought-boom-discussions-inside.trycloudflare.com/#/new
