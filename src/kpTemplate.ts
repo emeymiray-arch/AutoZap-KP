@@ -279,18 +279,62 @@ export function buildKpHtml(input: KpInput) {
 }
 
 export function printKp(html: string) {
-  const win = window.open('', '_blank', 'noopener,noreferrer,width=900,height=1100')
-  if (!win) {
-    alert('Разрешите всплывающие окна, чтобы сохранить PDF.')
+  const frame = document.createElement('iframe')
+  frame.setAttribute('title', 'Печать КП')
+  frame.style.position = 'fixed'
+  frame.style.right = '0'
+  frame.style.bottom = '0'
+  frame.style.width = '0'
+  frame.style.height = '0'
+  frame.style.border = '0'
+  frame.style.opacity = '0'
+  frame.style.pointerEvents = 'none'
+  document.body.appendChild(frame)
+
+  const doc = frame.contentDocument
+  if (!doc) {
+    frame.remove()
+    alert('Не удалось открыть печать. Попробуйте «Скачать HTML».')
     return
   }
-  win.document.open()
-  win.document.write(html)
-  win.document.close()
-  win.focus()
-  window.setTimeout(() => {
-    win.print()
-  }, 350)
+
+  doc.open()
+  doc.write(html)
+  doc.close()
+
+  const cleanup = () => {
+    window.setTimeout(() => frame.remove(), 1000)
+  }
+
+  const runPrint = () => {
+    try {
+      frame.contentWindow?.focus()
+      frame.contentWindow?.print()
+    } finally {
+      cleanup()
+    }
+  }
+
+  // Wait for logo/images so the printed PDF looks complete.
+  const images = Array.from(doc.images)
+  if (images.length === 0) {
+    window.setTimeout(runPrint, 150)
+    return
+  }
+
+  let left = images.length
+  const done = () => {
+    left -= 1
+    if (left <= 0) window.setTimeout(runPrint, 80)
+  }
+  for (const img of images) {
+    if (img.complete) done()
+    else {
+      img.addEventListener('load', done, { once: true })
+      img.addEventListener('error', done, { once: true })
+    }
+  }
+  window.setTimeout(runPrint, 2500)
 }
 
 export function downloadHtml(html: string, partner: string) {

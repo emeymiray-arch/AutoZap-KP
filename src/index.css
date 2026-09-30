@@ -278,6 +278,11 @@ h1 {
   color: #fff;
 }
 
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .btn.ghost {
   background: #fff;
   color: var(--blue);

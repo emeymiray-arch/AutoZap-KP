@@ -61,24 +61,32 @@ function CreatePage() {
     return d.toISOString().slice(0, 10)
   })
 
+  const partnerName = company.trim() || 'Название компании'
+  const canSave = company.trim().length > 1
+
   const html = useMemo(() => {
-    const partner = company.trim() || 'ООО «»'
     return buildKpHtml({
-      partner,
+      partner: partnerName,
       phone,
       date: new Date(`${dateValue}T12:00:00`),
       logoUrl: `${window.location.origin}/logo.jpg`,
     })
-  }, [company, phone, dateValue])
-
-  const srcDoc = useMemo(() => html, [html])
+  }, [partnerName, phone, dateValue])
 
   function onSavePdf() {
+    if (!canSave) {
+      alert('Введите название компании')
+      return
+    }
     printKp(html)
   }
 
   function onDownloadHtml() {
-    downloadHtml(html, company.trim() || 'partner')
+    if (!canSave) {
+      alert('Введите название компании')
+      return
+    }
+    downloadHtml(html, company.trim())
   }
 
   return (
@@ -100,32 +108,47 @@ function CreatePage() {
           onSavePdf()
         }}
       >
-        <label>
+        <label htmlFor="company-input">
           Компания-получатель
           <input
+            id="company-input"
+            name="company"
+            autoComplete="organization"
+            autoFocus
             value={company}
             onChange={(e) => setCompany(e.target.value)}
-            placeholder='ООО «Название»'
-            required
+            placeholder="ООО Пример"
           />
         </label>
-        <label>
+        <label htmlFor="phone-input">
           Телефон AutoZap
-          <input value={phone} onChange={(e) => setPhone(e.target.value)} />
+          <input
+            id="phone-input"
+            name="phone"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
         </label>
-        <label>
+        <label htmlFor="date-input">
           Дата документа
           <input
+            id="date-input"
+            name="date"
             type="date"
             value={dateValue}
             onChange={(e) => setDateValue(e.target.value)}
           />
         </label>
         <div className="actions">
-          <button className="btn" type="submit">
+          <button className="btn" type="submit" disabled={!canSave}>
             Сохранить PDF
           </button>
-          <button className="btn ghost" type="button" onClick={onDownloadHtml}>
+          <button
+            className="btn ghost"
+            type="button"
+            disabled={!canSave}
+            onClick={onDownloadHtml}
+          >
             Скачать HTML
           </button>
         </div>
@@ -136,7 +159,7 @@ function CreatePage() {
           <strong>Предпросмотр</strong>
           <span>Бланк AutoZap · 2 листа A4</span>
         </div>
-        <iframe className="preview" title="Предпросмотр КП" srcDoc={srcDoc} />
+        <iframe className="preview" title="Предпросмотр КП" srcDoc={html} />
       </div>
     </main>
   )
