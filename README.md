@@ -37,3 +37,12 @@ npm run build
 ```
 
 Готовый сайт в папке `dist/`.
+
+## GitHub
+
+Репозиторий: https://github.com/emeymiray-arch/AutoZap-KP
+
+Постоянный деплой на Vercel:
+1. https://vercel.com/new/import?s=https://github.com/emeymiray-arch/AutoZap-KP
+2. Deploy (framework Vite определится сам)
+
