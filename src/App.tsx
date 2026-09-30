@@ -117,7 +117,7 @@ function CreatePage() {
             autoFocus
             value={company}
             onChange={(e) => setCompany(e.target.value)}
-            placeholder="ООО Пример"
+            placeholder="Введите название компании"
           />
         </label>
         <label htmlFor="phone-input">
