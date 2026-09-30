@@ -46,3 +46,10 @@ npm run build
 1. https://vercel.com/new/import?s=https://github.com/emeymiray-arch/AutoZap-KP
 2. Deploy (framework Vite определится сам)
 
+## Постоянная ссылка
+
+https://emeymiray-arch.github.io/AutoZap-KP/
+
+Создать КП: https://emeymiray-arch.github.io/AutoZap-KP/#/new
+
+Репозиторий: https://github.com/emeymiray-arch/AutoZap-KP
