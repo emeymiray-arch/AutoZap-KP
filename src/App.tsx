@@ -1,10 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { buildKpHtml, downloadHtml, printKp } from './kpTemplate'
 import { PHONE, partnerBySlug, partners, type Partner } from './partners'
 
-function currentSlug() {
+type Route =
+  | { name: 'home' }
+  | { name: 'create' }
+  | { name: 'partner'; slug: string }
+
+function currentRoute(): Route {
   const hash = window.location.hash.replace(/^#\/?/, '')
+  if (!hash || hash === '/') return { name: 'home' }
+  if (hash === 'new' || hash === 'create') return { name: 'create' }
   const match = hash.match(/^p\/([^/]+)/)
-  return match?.[1] ?? ''
+  if (match) return { name: 'partner', slug: match[1] }
+  return { name: 'home' }
 }
 
 function Header() {
@@ -19,9 +28,14 @@ function Header() {
           <small>Площадка автозапчастей и сеть СТО</small>
         </span>
       </a>
-      <a className="phone" href={`tel:${PHONE.replace(/[^\d+]/g, '')}`}>
-        {PHONE}
-      </a>
+      <div className="top-actions">
+        <a className="btn small" href="#/new">
+          Создать КП
+        </a>
+        <a className="phone" href={`tel:${PHONE.replace(/[^\d+]/g, '')}`}>
+          {PHONE}
+        </a>
+      </div>
     </header>
   )
 }
@@ -39,15 +53,116 @@ function Actions({ partner }: { partner: Partner }) {
   )
 }
 
+function CreatePage() {
+  const [company, setCompany] = useState('')
+  const [phone, setPhone] = useState(PHONE)
+  const [dateValue, setDateValue] = useState(() => {
+    const d = new Date()
+    return d.toISOString().slice(0, 10)
+  })
+
+  const html = useMemo(() => {
+    const partner = company.trim() || 'ООО «»'
+    return buildKpHtml({
+      partner,
+      phone,
+      date: new Date(`${dateValue}T12:00:00`),
+      logoUrl: `${window.location.origin}/logo.jpg`,
+    })
+  }, [company, phone, dateValue])
+
+  const srcDoc = useMemo(() => html, [html])
+
+  function onSavePdf() {
+    printKp(html)
+  }
+
+  function onDownloadHtml() {
+    downloadHtml(html, company.trim() || 'partner')
+  }
+
+  return (
+    <main className="wrap create-wrap">
+      <a className="back" href="#/">
+        ← На главную
+      </a>
+      <p className="kicker">Новый документ</p>
+      <h1>Создать коммерческое предложение</h1>
+      <p className="lead">
+        Введите название компании — КП соберётся сразу. База данных не нужна.
+        Чтобы получить PDF: «Сохранить PDF» → в окне печати выберите «Сохранить как PDF».
+      </p>
+
+      <form
+        className="create-form"
+        onSubmit={(e) => {
+          e.preventDefault()
+          onSavePdf()
+        }}
+      >
+        <label>
+          Компания-получатель
+          <input
+            value={company}
+            onChange={(e) => setCompany(e.target.value)}
+            placeholder='ООО «Название»'
+            required
+          />
+        </label>
+        <label>
+          Телефон AutoZap
+          <input value={phone} onChange={(e) => setPhone(e.target.value)} />
+        </label>
+        <label>
+          Дата документа
+          <input
+            type="date"
+            value={dateValue}
+            onChange={(e) => setDateValue(e.target.value)}
+          />
+        </label>
+        <div className="actions">
+          <button className="btn" type="submit">
+            Сохранить PDF
+          </button>
+          <button className="btn ghost" type="button" onClick={onDownloadHtml}>
+            Скачать HTML
+          </button>
+        </div>
+      </form>
+
+      <div className="preview-panel">
+        <div className="preview-bar">
+          <strong>Предпросмотр</strong>
+          <span>Бланк AutoZap · 2 листа A4</span>
+        </div>
+        <iframe className="preview" title="Предпросмотр КП" srcDoc={srcDoc} />
+      </div>
+    </main>
+  )
+}
+
 function Catalog() {
   return (
     <main className="wrap">
-      <p className="kicker">Коммерческие предложения</p>
-      <h1>Отправьте ссылку на нужную компанию</h1>
-      <p className="lead">
-        Сайт без базы данных. Каждая карточка открывает КП на бланке AutoZap —
-        его можно скачать PDF или Word и переслать.
+      <section className="create-hero">
+        <div>
+          <p className="kicker">Главное действие</p>
+          <h1>Создать КП для любой компании</h1>
+          <p className="lead">
+            Введите название — получите бланк AutoZap с теми же условиями.
+            Без базы данных: документ собирается у вас в браузере.
+          </p>
+          <a className="btn" href="#/new">
+            Создать коммерческое предложение
+          </a>
+        </div>
+      </section>
+
+      <p className="kicker" style={{ marginTop: 36 }}>
+        Уже готовые КП
       </p>
+      <h2 className="section-title">Готовые файлы для пересылки</h2>
       <div className="grid">
         {partners.map((partner) => (
           <a className="card" href={`#/p/${partner.slug}`} key={partner.slug}>
@@ -64,10 +179,7 @@ function Catalog() {
 }
 
 function Detail({ partner }: { partner: Partner }) {
-  const shareUrl =
-    typeof window === 'undefined'
-      ? ''
-      : `${window.location.origin}${window.location.pathname}#/p/${partner.slug}`
+  const shareUrl = `${window.location.origin}${window.location.pathname}#/p/${partner.slug}`
 
   async function copyLink() {
     try {
@@ -89,6 +201,9 @@ function Detail({ partner }: { partner: Partner }) {
       <button className="linkish" type="button" onClick={() => void copyLink()}>
         Скопировать ссылку для пересылки
       </button>
+      <a className="linkish" href="#/new">
+        Создать КП для другой компании →
+      </a>
       <figure className="sheet">
         <figcaption>Лист 1</figcaption>
         <img src={partner.page1} alt={`${partner.name}, лист 1`} />
@@ -102,20 +217,25 @@ function Detail({ partner }: { partner: Partner }) {
 }
 
 export default function App() {
-  const [slug, setSlug] = useState(currentSlug)
+  const [route, setRoute] = useState(currentRoute)
 
   useEffect(() => {
-    const onHash = () => setSlug(currentSlug())
+    const onHash = () => setRoute(currentRoute())
     window.addEventListener('hashchange', onHash)
     return () => window.removeEventListener('hashchange', onHash)
   }, [])
 
-  const partner = slug ? partnerBySlug(slug) : undefined
-
   return (
     <div className="page">
       <Header />
-      {partner ? <Detail partner={partner} /> : <Catalog />}
+      {route.name === 'create' && <CreatePage />}
+      {route.name === 'partner' &&
+        (partnerBySlug(route.slug) ? (
+          <Detail partner={partnerBySlug(route.slug)!} />
+        ) : (
+          <Catalog />
+        ))}
+      {route.name === 'home' && <Catalog />}
     </div>
   )
 }
