@@ -24,4 +24,3 @@ git push -u https://ВАШ_ТОКЕН@github.com/emeymiray-arch/AutoZap-KP.git m
 4. Deploy
 
 Адрес будет постоянный: `https://....vercel.app`
-EOF
